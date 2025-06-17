@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>GestãoSeg - Cadastro de Empresas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a202c;
+      color: white;
+      margin: 0;
+      padding: 1rem;
+    }
+    header {
+      background-color: #ed8936;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    nav {
+      background: #2d3748;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 1rem;
+      padding: 0.5rem 1rem;
+      background: #ed8936;
+      border-radius: 0.3rem;
+      margin-right: 0.5rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    .card {
+      background-color: #2d3748;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(230, 80, 50, 0.2);
+      margin-bottom: 1rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ed8936;
+      border-radius: 0.3rem;
+      background-color: #2d3748;
+      color: white;
+    }
+    button {
+      background-color: #ed8936;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.3rem;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #4a5568;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<header>GestãoSeg</header>
+
+<nav>
+  <a href="index.html">Dashboard</a>
+  <a href="alunos.html">Alunos</a>
+  <a href="empresas.html">Empresas</a>
+  <a href="desvios.html">Desvios</a>
+  <a href="treinamentos.html">Treinamentos</a>
+  <a href="nfs.html">Notas Fiscais</a>
+</nav>
+
+<div class="container">
+
+  <h2 class="text-2xl font-bold mb-4">Cadastro de Empresas</h2>
+
+  <!-- Formulário -->
+  <div class="card">
+    <input type="text" id="empresa-razao" placeholder="Razão Social" />
+    <input type="text" id="empresa-cnpj" placeholder="CNPJ" />
+    <input type="text" id="empresa-endereco" placeholder="Endereço" />
+    <input type="text" id="empresa-cidade-uf" placeholder="Cidade/UF" />
+    <input type="text" id="empresa-telefone" placeholder="Telefone" />
+    <input type="email" id="empresa-email" placeholder="Email" />
+    <button onclick="addEmpresa()">Cadastrar Empresa</button>
+  </div>
+
+  <!-- Lista de Empresas -->
+  <h3 class="text-xl font-semibold mt-6 mb-2">Empresas Cadastradas</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Razão Social</th>
+        <th>CNPJ</th>
+        <th>Cidade/UF</th>
+        <th>Telefone</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-empresas">
+      <tr><td colspan="4">Nenhuma empresa cadastrada ainda.</td></tr>
+    </tbody>
+  </table>
+
+  <button onclick="exportToExcel()" class="mt-4 bg-green-600 px-4 py-2 rounded hover:bg-green-700 transition">
+    Exportar para Excel
+  </button>
+
+</div>
+
+<script>
+  const storage = {
+    get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
+    set(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+  };
+
+  let empresas = storage.get("empresas");
+
+  function addEmpresa() {
+    const razao = document.getElementById("empresa-razao").value;
+    const cnpj = document.getElementById("empresa-cnpj").value;
+    const endereco = document.getElementById("empresa-endereco").value;
+    const cidadeUf = document.getElementById("empresa-cidade-uf").value;
+    const telefone = document.getElementById("empresa-telefone").value;
+    const email = document.getElementById("empresa-email").value;
+
+    if (!razao || !cnpj) return alert("Preencha Razão Social e CNPJ");
+
+    empresas.push({ razao, cnpj, endereco, cidadeUf, telefone, email });
+    localStorage.setItem("empresas", JSON.stringify(empresas));
+    renderEmpresas();
+    clearInputs(["empresa-razao", "empresa-cnpj", "empresa-endereco", "empresa-cidade-uf", "empresa-telefone", "empresa-email"]);
+  }
+
+  function renderEmpresas() {
+    const tbody = document.getElementById("tabela-empresas");
+    tbody.innerHTML = "";
+    
+    if (empresas.length === 0) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="4">Nenhuma empresa cadastrada ainda.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+
+    empresas.forEach(e => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${e.razao}</td>
+        <td>${e.cnpj}</td>
+        <td>${e.cidadeUf}</td>
+        <td>${e.telefone}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function exportToExcel() {
+    if (empresas.length === 0) return alert("Nenhuma empresa para exportar.");
+
+    let csv = "Razão Social,CNPJ,Endereço,Cidade/UF,Telefone,Email\n";
+    empresas.forEach(e => {
+      csv += `"${e.razao}","${e.cnpj}","${e.endereco}","${e.cidadeUf}","${e.telefone}","${e.email}"\n`;
+    });
+
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "empresas.csv";
+    link.click();
+  }
+
+  function clearInputs(ids) {
+    ids.forEach(id => document.getElementById(id).value = "");
+  }
+
+  // Carrega empresas na inicialização
+  window.onload = () => {
+    if (empresas.length > 0) {
+      renderEmpresas();
+    }
+  };
+</script>
+
+</body>
+</html>
