@@ -616,6 +616,93 @@
     }
 
     window.onload = init;
+    // Armazenamento local
+const storage = {
+  get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
+  set(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+};
+
+let alunos = storage.get("alunos");
+let empresas = storage.get("empresas");
+let desvios = storage.get("desvios");
+
+const treinamentos = [
+  { id: 'nr12', nome: "NR-12 - Segurança em Máquinas" },
+  { id: 'nr35', nome: "NR-35 - Trabalho em Altura" }
+];
+
+function showSection(id) {
+  document.querySelectorAll(".card").forEach(s => s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  if (id === 'dashboard') updateDashboard();
+}
+
+function populateSelect(id, items) {
+  const select = document.getElementById(id);
+  if (!select) return;
+  select.innerHTML = "<option value=''>Selecione</option>";
+  items.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = typeof item === 'string' ? item : item.nome;
+    opt.textContent = typeof item === 'string' ? item : item.nome;
+    select.appendChild(opt);
+  });
+}
+
+function addAluno() {
+  const nome = document.getElementById("aluno-nome").value;
+  const cpf = document.getElementById("aluno-cpf").value;
+  const email = document.getElementById("aluno-email").value;
+  const treinamento = document.getElementById("aluno-treinamento").value;
+
+  if (!nome || !cpf) return alert("Preencha Nome e CPF");
+
+  // Se aluno já existe, adiciona mais um treinamento
+  const alunoExistente = alunos.find(a => a.cpf === cpf);
+
+  if (alunoExistente) {
+    if (treinamento && !alunoExistente.treinamentosRealizados.includes(treinamento)) {
+      alunoExistente.treinamentosRealizados.push(treinamento);
+    }
+    alunos = alunos.map(a => a.cpf === cpf ? alunoExistente : a);
+  } else {
+    alunos.push({
+      nome,
+      cpf,
+      email,
+      treinamentosRealizados: treinamento ? [treinamento] : []
+    });
+  }
+
+  storage.set("alunos", alunos);
+  renderAlunos();
+  clearInputs(["aluno-nome", "aluno-cpf", "aluno-email"]);
+  document.getElementById("aluno-treinamento").value = "";
+}
+
+function renderAlunos() {
+  const tbody = document.getElementById("tabela-alunos");
+  tbody.innerHTML = "";
+
+  if (alunos.length === 0) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4">Nenhum aluno cadastrado ainda.</td>`;
+    tbody.appendChild(tr);
+    return;
+  }
+
+  alunos.forEach(aluno => {
+    const tr = document.createElement("tr");
+    const treinamentosRealizados = aluno.treinamentosRealizados?.join(", ") || "-";
+    tr.innerHTML = `
+      <td>${aluno.nome}</td>
+      <td>${aluno.cpf}</td>
+      <td>${aluno.email || "-"}</td>
+      <td>${treinamentosRealizados}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
   </script>
 </body>
 </html>
