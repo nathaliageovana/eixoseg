@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>GestãoSeg - Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a202c;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #ed8936;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    nav {
+      background: #2d3748;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      text-decoration: none;
+      color: white;
+      background: #ed8936;
+      padding: 0.5rem 1rem;
+      border-radius: 0.3rem;
+    }
+    .main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    .card {
+      background-color: #2d3748;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 10px rgba(230, 80, 50, 0.2);
+      margin-bottom: 1rem;
+    }
+    .indicator-title {
+      font-size: 0.9rem;
+      color: #ed8936;
+    }
+    .indicator-value {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .grafico-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .barra-horizontal {
+      background-color: #4a5568;
+      height: 1rem;
+      border-radius: 0.3rem;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    .barra-abertos {
+      background-color: #f56565;
+    }
+    .barra-andamento {
+      background-color: #ecc94b;
+    }
+    .barra-resolvidos {
+      background-color: #48bb78;
+    }
+  </style>
+</head>
+<body>
+
+<header>GestãoSeg</header>
+
+<nav>
+  <a href="alunos.html">Alunos</a>
+  <a href="empresas.html">Empresas</a>
+  <a href="treinamentos.html">Treinamentos</a>
+  <a href="desvios.html">Desvios</a>
+  <a href="nfs.html">Notas Fiscais</a>
+</nav>
+
+<main class="main">
+  <h2>Dashboard</h2>
+
+  <!-- Indicadores Rápidos -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+    <div class="card">
+      <div class="indicator-title">Total de Alunos</div>
+      <div class="indicator-value" id="count-alunos">0</div>
+    </div>
+    <div class="card">
+      <div class="indicator-title">Empresas Cadastradas</div>
+      <div class="indicator-value" id="count-empresas">0</div>
+    </div>
+    <div class="card">
+      <div class="indicator-title">Certificados Emitidos</div>
+      <div class="indicator-value" id="count-certificados">0</div>
+    </div>
+    <div class="card">
+      <div class="indicator-title">Faturamento Total</div>
+      <div class="indicator-value">R$<span id="total-faturamento">0.00</span></div>
+    </div>
+  </div>
+
+  <!-- Status dos Desvios -->
+  <div class="card mt-4">
+    <h3>Status dos Desvios</h3>
+    <div class="grafico-label">
+      <span>Abertos</span>
+      <span id="total-abertos">0</span>
+    </div>
+    <div class="barra-horizontal">
+      <div id="barra-abertos" class="barra-abertos h-full" style="width: 0%"></div>
+    </div>
+
+    <div class="grafico-label">
+      <span>Em Andamento</span>
+      <span id="total-andamento">0</span>
+    </div>
+    <div class="barra-horizontal">
+      <div id="barra-andamento" class="barra-andamento h-full" style="width: 0%"></div>
+    </div>
+
+    <div class="grafico-label">
+      <span>Resolvidos</span>
+      <span id="total-resolvidos">0</span>
+    </div>
+    <div class="barra-horizontal">
+      <div id="barra-resolvidos" class="barra-resolvidos h-full" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- Desvios por Empresa -->
+  <div class="card mt-4">
+    <h3>Desvios por Empresa</h3>
+    <p id="grafico-desvios-por-empresa">Dados carregados dinamicamente</p>
+  </div>
+
+  <!-- Desvios por Tipo -->
+  <div class="card mt-4">
+    <h3>Desvios por Classificação</h3>
+    <p id="grafico-desvios-por-tipo">Dados carregados dinamicamente</p>
+  </div>
+</main>
+
+<script>
+  // Recuperando dados do localStorage
+  const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+  const empresas = JSON.parse(localStorage.getItem("empresas")) || [];
+  const desvios = JSON.parse(localStorage.getItem("desvios")) || [];
+
+  document.getElementById("count-alunos").innerText = alunos.length;
+  document.getElementById("count-empresas").innerText = empresas.length;
+  document.getElementById("count-certificados").innerText = 0;
+
+  const totalDesvios = desvios.length;
+  const abertos = desvios.filter(d => d.situacao === "Aberto").length;
+  const andamento = desvios.filter(d => d.situacao === "Em andamento").length;
+  const resolvidos = desvios.filter(d => d.situacao === "Resolvido").length;
+
+  document.getElementById("total-abertos").innerText = abertos;
+  document.getElementById("total-andamento").innerText = andamento;
+  document.getElementById("total-resolvidos").innerText = resolvidos;
+
+  document.getElementById("barra-abertos").style.width = ((abertos / Math.max(totalDesvios, 1)) * 100) + "%";
+  document.getElementById("barra-andamento").style.width = ((andamento / Math.max(totalDesvios, 1)) * 100) + "%";
+  document.getElementById("barra-resolvidos").style.width = ((resolvidos / Math.max(totalDesvios, 1)) * 100) + "%";
+
+  // Gera gráfico por empresa
+  const contagemPorEmpresa = {};
+  desvios.forEach(d => {
+    contagemPorEmpresa[d.empresa] = (contagemPorEmpresa[d.empresa] || 0) + 1;
+  });
+
+  const graficoEmpresaDiv = document.getElementById("grafico-desvios-por-empresa");
+  if (Object.keys(contagemPorEmpresa).length > 0) {
+    for (const [empresa, qtd] of Object.entries(contagemPorEmpresa)) {
+      graficoEmpresaDiv.innerHTML += `<p>${empresa}: ${qtd} desvios</p>`;
+    }
+  } else {
+    graficoEmpresaDiv.innerHTML = "<p>Nenhum desvio registrado ainda.</p>";
+  }
+
+  // Gera gráfico por tipo
+  const contagemPorTipo = {};
+  desvios.forEach(d => {
+    contagemPorTipo[d.tipo] = (contagemPorTipo[d.tipo] || 0) + 1;
+  });
+
+  const graficoTipoDiv = document.getElementById("grafico-desvios-por-tipo");
+  if (Object.keys(contagemPorTipo).length > 0) {
+    for (const [tipo, qtd] of Object.entries(contagemPorTipo)) {
+      graficoTipoDiv.innerHTML += `<p>${tipo}: ${qtd} desvios</p>`;
+    }
+  } else {
+    graficoTipoDiv.innerHTML = "<p>Nenhum desvio registrado ainda.</p>";
+  }
+</script>
+
+</body>
+</html>
