@@ -497,6 +497,54 @@
       window.print();
     }
 
+    function emitirNFDiaria() {
+      const empresa = document.getElementById("nf-empresa").value;
+      const dias = parseInt(document.getElementById("nf-dias").value || 1);
+      const horas = parseInt(document.getElementById("nf-horas").value || 0);
+      const total = (430 * dias) + (horas * 50);
+      document.getElementById("nf-diaria-result").innerHTML = `
+        <p>Nota Fiscal para ${empresa} - ${dias} dia(s)</p>
+        <p>Horas extras: ${horas}</p>
+        <p><strong>Valor total: R$${total.toFixed(2)}</strong></p>
+      `;
+    }
+
+    function emitirNFTreinamento() {
+      const treinamento = document.getElementById("nf-treinamento").value;
+      const alunos = parseInt(document.getElementById("nf-alunos").value || 1);
+      const valorPorAluno = parseFloat(document.getElementById("nf-valor-aluno").value || 0);
+      const total = alunos * valorPorAluno;
+      document.getElementById("nf-treinamento-result").innerHTML = `
+        <p>Nota Fiscal para ${treinamento}</p>
+        <p>Quantidade de Alunos: ${alunos}</p>
+        <p><strong>Valor total: R$${total.toFixed(2)}</strong></p>
+      `;
+    }
+
+    function registrarDiaria() {
+      const aluno = document.getElementById("diaria-aluno").value;
+      const empresa = document.getElementById("diaria-empresa").value;
+      const data = document.getElementById("diaria-data").value;
+      const horasExtras = parseInt(document.getElementById("diaria-horas-extras").value || 0);
+      const valorTotal = 430 + (horasExtras * 50);
+
+      diarias.push({ aluno, empresa, data, horasExtras, valorTotal });
+      storage.set("diarias", diarias);
+      renderDiarias();
+      clearInputs(["diaria-data", "diaria-horas-extras"]);
+    }
+
+    function renderDiarias() {
+      const tbody = document.querySelector("#tabela-diarias tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      diarias.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${d.aluno}</td><td>${d.empresa}</td><td>${new Date(d.data).toLocaleDateString()}</td><td>${d.horasExtras}</td><td>R$${parseFloat(d.valorTotal).toFixed(2)}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
     function updateDashboard() {
       document.getElementById("count-alunos").innerText = alunos.length;
       document.getElementById("count-empresas").innerText = empresas.length;
@@ -574,6 +622,27 @@
           </div>
         `;
       });
+    }
+
+    function updateCertFields() {
+      const treinamentoSelect = document.getElementById("cert-treinamento");
+      const selected = treinamentos.find(t => t.nome === treinamentoSelect.value);
+      const printArea = document.getElementById("print-area");
+
+      if (!selected) return;
+
+      printArea.innerHTML = `
+        <div class="print-section" id="cert-template">
+          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
+          <p style="text-align:center;">Certificamos que:</p>
+          <h2 style="text-align:center; margin:2rem 0;" id="cert-nome-aluno"></h2>
+          <p style="text-align:center;">Participou do treinamento:</p>
+          <h3 style="text-align:center; margin:2rem 0;">${selected.nome}</h3>
+          <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
+          <p style="text-align:center;">Data: <span id="cert-data-print"></span></p>
+          <p style="margin-top:4rem; text-align:right;">__________________________<br>Instrutor</p>
+        </div>
+      `;
     }
 
     function clearInputs(ids) {
