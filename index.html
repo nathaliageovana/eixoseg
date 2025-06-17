@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>GestãoSeg - Sistema de Segurança do Trabalho</title>
+  <title>GestãoSeg - Sistema Único</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -192,14 +192,11 @@
   <!-- Sidebar -->
   <div class="sidebar no-print">
     <header>GestãoSeg</header>
-    <button onclick="showTab('dashboard')">Dashboard</button>
-    <button onclick="showTab('alunos')">Alunos</button>
-    <button onclick="showTab('empresas')">Empresas</button>
-    <button onclick="showTab('treinamentos')">Treinamentos</button>
-    <button onclick="showTab('diarias')">Diárias</button>
-    <button onclick="showTab('nfs-diaria')">NF - Diárias</button>
-    <button onclick="showTab('nfs-treinamento')">NF - Treinamentos</button>
-    <button onclick="showTab('desvios')">Desvios</button>
+    <button onclick="showSection('dashboard')">Dashboard</button>
+    <button onclick="showSection('alunos')">Alunos</button>
+    <button onclick="showSection('empresas')">Empresas</button>
+    <button onclick="showSection('treinamentos')">Treinamentos</button>
+    <button onclick="showSection('desvios')">Desvios</button>
   </div>
 
   <!-- Main Content -->
@@ -313,40 +310,6 @@
       <button onclick="emitirCertificado()">Emitir Certificado</button>
     </section>
 
-    <!-- Diárias -->
-    <section id="diarias" class="card hidden">
-      <h2>Controle de Diárias</h2>
-      <select id="diaria-aluno"></select>
-      <select id="diaria-empresa"></select>
-      <input type="date" id="diaria-data" />
-      <input type="number" id="diaria-horas-extras" min="0" placeholder="Horas Extras" />
-      <button onclick="registrarDiaria()">Registrar Diária</button>
-      <table id="tabela-diarias" class="mt-4">
-        <thead><tr><th>Aluno</th><th>Empresa</th><th>Data</th><th>Horas Extras</th><th>Valor Total</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <!-- NF - Diárias -->
-    <section id="nfs-diaria" class="card hidden">
-      <h2>Emitir NF - Diárias</h2>
-      <select id="nf-empresa"></select>
-      <input type="number" id="nf-dias" min="1" placeholder="Dias trabalhados" />
-      <input type="number" id="nf-horas" min="0" placeholder="Horas extras" />
-      <button onclick="emitirNFDiaria()">Emitir NF</button>
-      <div id="nf-diaria-result" class="mt-4"></div>
-    </section>
-
-    <!-- NF - Treinamentos -->
-    <section id="nfs-treinamento" class="card hidden">
-      <h2>Emitir NF - Treinamentos</h2>
-      <select id="nf-treinamento"></select>
-      <input type="number" id="nf-alunos" min="1" placeholder="Quantidade de Alunos" />
-      <input type="number" id="nf-valor-aluno" min="0" step="0.01" placeholder="Valor por aluno" />
-      <button onclick="emitirNFTreinamento()">Emitir NF</button>
-      <div id="nf-treinamento-result" class="mt-4"></div>
-    </section>
-
     <!-- Desvios -->
     <section id="desvios" class="card hidden">
       <h2>Cadastrar Desvio</h2>
@@ -387,10 +350,10 @@
       { id: 'nr35', nome: "NR-35 - Trabalho em Altura", duracao: "4 horas", conteudo: ["Definições e riscos", "Equipamentos de proteção contra quedas", "Planejamento e organização do trabalho", "Resgate e primeiros socorros"] }
     ];
 
-    function showTab(tab) {
-      document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
-      document.getElementById(tab).classList.remove("hidden");
-      if (tab === 'dashboard') updateDashboard();
+    function showSection(id) {
+      document.querySelectorAll(".card").forEach(s => s.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+      if (id === 'dashboard') updateDashboard();
     }
 
     function populateSelect(id, items) {
@@ -415,7 +378,6 @@
         tbody.appendChild(tr);
       });
       populateSelect("cert-aluno", alunos.map(a => a.nome));
-      populateSelect("diaria-aluno", alunos.map(a => a.nome));
       updateDashboard();
     }
 
@@ -428,7 +390,6 @@
         tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
         tbody.appendChild(tr);
       });
-      populateSelect("nf-empresa", empresas.map(e => e.razao));
       populateSelect("desvio-empresa", empresas.map(e => e.razao));
       updateDashboard();
     }
@@ -495,54 +456,6 @@
       `;
       document.getElementById("print-area").innerHTML = content;
       window.print();
-    }
-
-    function emitirNFDiaria() {
-      const empresa = document.getElementById("nf-empresa").value;
-      const dias = parseInt(document.getElementById("nf-dias").value || 1);
-      const horas = parseInt(document.getElementById("nf-horas").value || 0);
-      const total = (430 * dias) + (horas * 50);
-      document.getElementById("nf-diaria-result").innerHTML = `
-        <p>Nota Fiscal para ${empresa} - ${dias} dia(s)</p>
-        <p>Horas extras: ${horas}</p>
-        <p><strong>Valor total: R$${total.toFixed(2)}</strong></p>
-      `;
-    }
-
-    function emitirNFTreinamento() {
-      const treinamento = document.getElementById("nf-treinamento").value;
-      const alunos = parseInt(document.getElementById("nf-alunos").value || 1);
-      const valorPorAluno = parseFloat(document.getElementById("nf-valor-aluno").value || 0);
-      const total = alunos * valorPorAluno;
-      document.getElementById("nf-treinamento-result").innerHTML = `
-        <p>Nota Fiscal para ${treinamento}</p>
-        <p>Quantidade de Alunos: ${alunos}</p>
-        <p><strong>Valor total: R$${total.toFixed(2)}</strong></p>
-      `;
-    }
-
-    function registrarDiaria() {
-      const aluno = document.getElementById("diaria-aluno").value;
-      const empresa = document.getElementById("diaria-empresa").value;
-      const data = document.getElementById("diaria-data").value;
-      const horasExtras = parseInt(document.getElementById("diaria-horas-extras").value || 0);
-      const valorTotal = 430 + (horasExtras * 50);
-
-      diarias.push({ aluno, empresa, data, horasExtras, valorTotal });
-      storage.set("diarias", diarias);
-      renderDiarias();
-      clearInputs(["diaria-data", "diaria-horas-extras"]);
-    }
-
-    function renderDiarias() {
-      const tbody = document.querySelector("#tabela-diarias tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      diarias.forEach(d => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${d.aluno}</td><td>${d.empresa}</td><td>${new Date(d.data).toLocaleDateString()}</td><td>${d.horasExtras}</td><td>R$${parseFloat(d.valorTotal).toFixed(2)}</td>`;
-        tbody.appendChild(tr);
-      });
     }
 
     function updateDashboard() {
@@ -655,14 +568,36 @@
     function init() {
       // Popula selects
       populateSelect("cert-treinamento", treinamentos.map(t => t.nome));
-      populateSelect("nf-treinamento", treinamentos.map(t => t.nome));
       populateSelect("desvio-empresa", empresas.map(e => e.razao));
-      populateSelect("nf-empresa", empresas.map(e => e.razao));
 
       // Renderiza dados iniciais
       renderAlunos();
       renderEmpresas();
       updateDashboard();
+    }
+
+    function renderAlunos() {
+      const tbody = document.querySelector("#tabela-alunos tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      alunos.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${a.nome}</td><td>${a.cpf}</td><td>${a.email || "-"}</td>`;
+        tbody.appendChild(tr);
+      });
+      populateSelect("cert-aluno", alunos.map(a => a.nome));
+    }
+
+    function renderEmpresas() {
+      const tbody = document.querySelector("#tabela-empresas tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      empresas.forEach(e => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
+        tbody.appendChild(tr);
+      });
+      populateSelect("desvio-empresa", empresas.map(e => e.razao));
     }
 
     window.onload = init;
