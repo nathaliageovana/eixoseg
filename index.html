@@ -271,19 +271,34 @@
       </button>
     </section>
 
-    <!-- Alunos -->
-    <section id="alunos" class="card hidden">
-      <h2>Cadastro de Alunos</h2>
-      <input type="text" id="aluno-nome" placeholder="Nome do Aluno" />
-      <input type="text" id="aluno-cpf" placeholder="CPF" />
-      <input type="email" id="aluno-email" placeholder="Email" />
-      <button onclick="addAluno()">Cadastrar</button>
-      <table id="tabela-alunos" class="mt-4">
-        <thead><tr><th>Nome</th><th>CPF</th><th>Email</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
+    <!-- Aba Alunos -->
+<section id="alunos" class="card hidden">
+  <h2>Cadastro de Alunos</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <input type="text" id="aluno-nome" placeholder="Nome do Aluno" />
+    <input type="text" id="aluno-cpf" placeholder="CPF" />
+    <input type="email" id="aluno-email" placeholder="Email" />
+    <select id="aluno-treinamento">
+      <option value="">Selecione um Treinamento</option>
+      <!-- Treinamentos serão populados aqui -->
+    </select>
+    <button onclick="addAluno()">Cadastrar Aluno</button>
+  </div>
 
+  <table class="mt-4 w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-700">
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Email</th>
+        <th>Treinamentos Realizados</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-alunos">
+      <!-- Alunos cadastrados aparecerão aqui -->
+    </tbody>
+  </table>
+</section>
     <!-- Empresas -->
     <section id="empresas" class="card hidden">
       <h2>Cadastro de Empresas</h2>
