@@ -395,17 +395,19 @@
 
     function populateSelect(id, items) {
       const select = document.getElementById(id);
+      if (!select) return;
       select.innerHTML = "<option value=''>Selecione</option>";
       items.forEach(item => {
         const opt = document.createElement("option");
-        opt.value = item.nome || item;
-        opt.textContent = item.nome || item;
+        opt.value = typeof item === 'string' ? item : item.nome;
+        opt.textContent = typeof item === 'string' ? item : item.nome;
         select.appendChild(opt);
       });
     }
 
     function renderAlunos() {
       const tbody = document.querySelector("#tabela-alunos tbody");
+      if (!tbody) return;
       tbody.innerHTML = "";
       alunos.forEach(a => {
         const tr = document.createElement("tr");
@@ -419,6 +421,7 @@
 
     function renderEmpresas() {
       const tbody = document.querySelector("#tabela-empresas tbody");
+      if (!tbody) return;
       tbody.innerHTML = "";
       empresas.forEach(e => {
         const tr = document.createElement("tr");
@@ -480,13 +483,13 @@
       if (!aluno || !treinamento || !data || !instrutor) return alert("Preencha todos os campos");
       const content = `
         <div class="print-section" id="cert-${Date.now()}">
-          <h1 style="text-align:center; color:#ed8936;">CERTIFICADO DE PARTICIPAÇÃO</h1>
+          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
           <p style="text-align:center;">Certificamos que:</p>
-          <h2 style="text-align:center; margin: 2rem 0;">${aluno}</h2>
-          <p style="text-align:center;">Concluiu o treinamento:</p>
-          <h3 style="text-align:center; margin: 2rem 0;">${treinamento}</h3>
+          <h2 style="text-align:center; margin:2rem 0;" id="cert-nome-aluno">${aluno}</h2>
+          <p style="text-align:center;">Participou do treinamento:</p>
+          <h3 style="text-align:center; margin:2rem 0;">${treinamento}</h3>
           <p style="text-align:center;">Ministrado por: ${instrutor}</p>
-          <p style="text-align:center; margin-top: 1rem;">Data: ${new Date(data).toLocaleDateString()}</p>
+          <p style="text-align:center;">Data: ${new Date(data).toLocaleDateString()}</p>
           <p style="margin-top: 4rem; text-align:right;">__________________________<br>Instrutor</p>
         </div>
       `;
@@ -533,6 +536,7 @@
 
     function renderDiarias() {
       const tbody = document.querySelector("#tabela-diarias tbody");
+      if (!tbody) return;
       tbody.innerHTML = "";
       diarias.forEach(d => {
         const tr = document.createElement("tr");
@@ -566,6 +570,7 @@
 
     function generateGraficoPorEmpresa() {
       const container = document.getElementById("grafico-desvios-por-empresa");
+      if (!container) return;
       container.innerHTML = "";
 
       const contagem = {};
@@ -593,6 +598,7 @@
 
     function generateGraficoPorTipo() {
       const container = document.getElementById("grafico-desvios-por-tipo");
+      if (!container) return;
       container.innerHTML = "";
 
       const contagem = {};
@@ -634,20 +640,26 @@
           <h3 style="text-align:center; margin:2rem 0;">${selected.nome}</h3>
           <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
           <p style="text-align:center;">Data: <span id="cert-data-print"></span></p>
-          <p style="margin-top:4rem; text-align:right;">__________________________<br>Instrutor</p>
+          <p style="margin-top: 4rem; text-align:right;">__________________________<br>Instrutor</p>
         </div>
       `;
     }
 
     function clearInputs(ids) {
-      ids.forEach(id => document.getElementById(id).value = "");
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
     }
 
     function init() {
+      // Popula selects
       populateSelect("cert-treinamento", treinamentos.map(t => t.nome));
       populateSelect("nf-treinamento", treinamentos.map(t => t.nome));
       populateSelect("desvio-empresa", empresas.map(e => e.razao));
       populateSelect("nf-empresa", empresas.map(e => e.razao));
+
+      // Renderiza dados
       renderAlunos();
       renderEmpresas();
       updateDashboard();
@@ -655,6 +667,7 @@
 
     function renderAlunos() {
       const tbody = document.querySelector("#tabela-alunos tbody");
+      if (!tbody) return;
       tbody.innerHTML = "";
       alunos.forEach(a => {
         const tr = document.createElement("tr");
@@ -668,17 +681,77 @@
 
     function renderEmpresas() {
       const tbody = document.querySelector("#tabela-empresas tbody");
+      if (!tbody) return;
       tbody.innerHTML = "";
       empresas.forEach(e => {
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
         tbody.appendChild(tr);
       });
-      populateSelect("cert-empresa", empresas);
-      populateSelect("diaria-empresa", empresas.map(e => e.razao));
       populateSelect("nf-empresa", empresas.map(e => e.razao));
       populateSelect("desvio-empresa", empresas.map(e => e.razao));
       updateDashboard();
+    }
+
+    function addAluno() {
+      const nome = document.getElementById("aluno-nome").value;
+      const cpf = document.getElementById("aluno-cpf").value;
+      const email = document.getElementById("aluno-email").value;
+
+      if (!nome || !cpf) return alert("Preencha Nome e CPF");
+      alunos.push({ nome, cpf, email });
+      storage.set("alunos", alunos);
+      renderAlunos();
+      clearInputs(["aluno-nome", "aluno-cpf", "aluno-email"]);
+    }
+
+    function addEmpresa() {
+      const razao = document.getElementById("empresa-razao").value;
+      const cnpj = document.getElementById("empresa-cnpj").value;
+      const endereco = document.getElementById("empresa-endereco").value;
+      const cidadeUf = document.getElementById("empresa-cidade-uf").value;
+      const telefone = document.getElementById("empresa-telefone").value;
+      const email = document.getElementById("empresa-email").value;
+
+      if (!razao || !cnpj) return alert("Preencha Razão Social e CNPJ");
+      empresas.push({ razao, cnpj, endereco, cidadeUf, telefone, email });
+      storage.set("empresas", empresas);
+      renderEmpresas();
+      clearInputs(["empresa-razao", "empresa-cnpj", "empresa-endereco", "empresa-cidade-uf", "empresa-telefone", "empresa-email"]);
+    }
+
+    function updateCertFields() {
+      const treinamentoSelect = document.getElementById("cert-treinamento");
+      const selected = treinamentos.find(t => t.nome === treinamentoSelect.value);
+      const printArea = document.getElementById("print-area");
+
+      if (!selected) return;
+
+      printArea.innerHTML = `
+        <div class="print-section" id="cert-template">
+          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
+          <p style="text-align:center;">Certificamos que:</p>
+          <h2 style="text-align:center; margin:2rem 0;" id="cert-nome-aluno"></h2>
+          <p style="text-align:center;">Participou do treinamento:</p>
+          <h3 style="text-align:center; margin:2rem 0;">${selected.nome}</h3>
+          <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
+          <p style="text-align:center;">Data: <span id="cert-data-print"></span></p>
+          <p style="margin-top: 4rem; text-align:right;">__________________________<br>Instrutor</p>
+        </div>
+      `;
+    }
+
+    function emitirCertificado() {
+      const aluno = document.getElementById("cert-aluno").value;
+      const treinamento = document.getElementById("cert-treinamento").value;
+      const data = document.getElementById("cert-data").value;
+      const instrutor = document.getElementById("cert-instrutor").value;
+
+      if (!aluno || !treinamento || !data || !instrutor) return alert("Preencha todos os campos");
+      document.getElementById("cert-nome-aluno").innerText = aluno;
+      document.getElementById("cert-instrutor-print").innerText = instrutor;
+      document.getElementById("cert-data-print").innerText = new Date(data).toLocaleDateString();
+      window.print();
     }
 
     window.onload = init;
