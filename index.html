@@ -478,10 +478,9 @@
       const instrutor = document.getElementById("cert-instrutor").value;
 
       if (!aluno || !treinamento || !data || !instrutor) return alert("Preencha todos os campos");
-
       const content = `
         <div class="print-section" id="cert-${Date.now()}">
-          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
+          <h1 style="text-align:center; color:#ed8936;">CERTIFICADO DE PARTICIPAÇÃO</h1>
           <p style="text-align:center;">Certificamos que:</p>
           <h2 style="text-align:center; margin: 2rem 0;">${aluno}</h2>
           <p style="text-align:center;">Concluiu o treinamento:</p>
@@ -499,7 +498,7 @@
       const empresa = document.getElementById("nf-empresa").value;
       const dias = parseInt(document.getElementById("nf-dias").value || 1);
       const horas = parseInt(document.getElementById("nf-horas").value || 0);
-      const total = (430 * dias) + (50 * horas);
+      const total = (430 * dias) + (horas * 50);
       document.getElementById("nf-diaria-result").innerHTML = `
         <p>Nota Fiscal para ${empresa} - ${dias} dia(s)</p>
         <p>Horas extras: ${horas}</p>
@@ -628,9 +627,9 @@
 
       printArea.innerHTML = `
         <div class="print-section" id="cert-template">
-          <h1 style="text-align:center; color:#ed8936;">CERTIFICADO DE PARTICIPAÇÃO</h1>
+          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
           <p style="text-align:center;">Certificamos que:</p>
-          <h2 id="cert-nome-aluno" style="font-size:1.5rem; text-align:center; margin:2rem 0;"></h2>
+          <h2 style="text-align:center; margin:2rem 0;" id="cert-nome-aluno"></h2>
           <p style="text-align:center;">Participou do treinamento:</p>
           <h3 style="text-align:center; margin:2rem 0;">${selected.nome}</h3>
           <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
@@ -651,6 +650,34 @@
       populateSelect("nf-empresa", empresas.map(e => e.razao));
       renderAlunos();
       renderEmpresas();
+      updateDashboard();
+    }
+
+    function renderAlunos() {
+      const tbody = document.querySelector("#tabela-alunos tbody");
+      tbody.innerHTML = "";
+      alunos.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${a.nome}</td><td>${a.cpf}</td><td>${a.email || "-"}</td>`;
+        tbody.appendChild(tr);
+      });
+      populateSelect("cert-aluno", alunos.map(a => a.nome));
+      populateSelect("diaria-aluno", alunos.map(a => a.nome));
+      updateDashboard();
+    }
+
+    function renderEmpresas() {
+      const tbody = document.querySelector("#tabela-empresas tbody");
+      tbody.innerHTML = "";
+      empresas.forEach(e => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
+        tbody.appendChild(tr);
+      });
+      populateSelect("cert-empresa", empresas);
+      populateSelect("diaria-empresa", empresas.map(e => e.razao));
+      populateSelect("nf-empresa", empresas.map(e => e.razao));
+      populateSelect("desvio-empresa", empresas.map(e => e.razao));
       updateDashboard();
     }
 
