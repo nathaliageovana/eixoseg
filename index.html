@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>GestãoSeg - Sistema Único</title>
   <style>
+    /* Estilos completos aqui */
     body {
       font-family: Arial, sans-serif;
       background-color: #1a202c;
@@ -49,8 +50,8 @@
       background-color: #ed8936;
       padding: 1rem;
       text-align: center;
-      font-weight: bold;
       font-size: 1.5rem;
+      font-weight: bold;
     }
 
     section {
@@ -271,34 +272,48 @@
       </button>
     </section>
 
-    <!-- Aba Alunos -->
-<section id="alunos" class="card hidden">
-  <h2>Cadastro de Alunos</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-    <input type="text" id="aluno-nome" placeholder="Nome do Aluno" />
-    <input type="text" id="aluno-cpf" placeholder="CPF" />
-    <input type="email" id="aluno-email" placeholder="Email" />
-    <select id="aluno-treinamento">
-      <option value="">Selecione um Treinamento</option>
-      <!-- Treinamentos serão populados aqui -->
-    </select>
-    <button onclick="addAluno()">Cadastrar Aluno</button>
-  </div>
+    <!-- Alunos -->
+    <section id="alunos" class="card hidden">
+      <h2>Cadastro de Alunos</h2>
 
-  <table class="mt-4 w-full border-collapse">
-    <thead>
-      <tr class="bg-gray-700">
-        <th>Nome</th>
-        <th>CPF</th>
-        <th>Email</th>
-        <th>Treinamentos Realizados</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-alunos">
-      <!-- Alunos cadastrados aparecerão aqui -->
-    </tbody>
-  </table>
-</section>
+      <!-- Formulário -->
+      <div class="grid gap-4 mb-4">
+        <input type="text" id="aluno-nome" placeholder="Nome do Aluno" />
+        <input type="text" id="aluno-cpf" placeholder="CPF" />
+        <input type="email" id="aluno-email" placeholder="Email" />
+        <select id="aluno-treinamento">
+          <option value="">Selecione um Treinamento</option>
+        </select>
+        <button onclick="addAluno()">Cadastrar ou Atualizar</button>
+      </div>
+
+      <!-- Lista de alunos -->
+      <table class="w-full mt-4 border-collapse">
+        <thead>
+          <tr class="bg-gray-700">
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Email</th>
+            <th>Treinamentos Realizados</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela-alunos">
+          <!-- Alunos aparecerão aqui -->
+        </tbody>
+      </table>
+
+      <!-- Botões extras -->
+      <div class="mt-6 flex space-x-4">
+        <button onclick="exportToExcel()" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700 transition">
+          Exportar para Excel
+        </button>
+        <button onclick="imprimirCertificado()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">
+          Imprimir Certificado
+        </button>
+      </div>
+    </section>
+
     <!-- Empresas -->
     <section id="empresas" class="card hidden">
       <h2>Cadastro de Empresas</h2>
@@ -309,20 +324,17 @@
       <input type="text" id="empresa-telefone" placeholder="Telefone" />
       <input type="email" id="empresa-email" placeholder="Email" />
       <button onclick="addEmpresa()">Cadastrar</button>
-      <table id="tabela-empresas" class="mt-4">
-        <thead><tr><th>Razão Social</th><th>CNPJ</th><th>Cidade/UF</th><th>Telefone</th></tr></thead>
+      <table id="tabela-empresas" class="mt-4 w-full">
+        <thead>
+          <tr>
+            <th>Razão Social</th>
+            <th>CNPJ</th>
+            <th>Cidade/UF</th>
+            <th>Telefone</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
-    </section>
-
-    <!-- Treinamentos -->
-    <section id="treinamentos" class="card hidden">
-      <h2>Emitir Certificado</h2>
-      <select id="cert-treinamento" onchange="updateCertFields()"></select>
-      <select id="cert-aluno"></select>
-      <input type="date" id="cert-data" />
-      <input type="text" id="cert-instrutor" placeholder="Instrutor" />
-      <button onclick="emitirCertificado()">Emitir Certificado</button>
     </section>
 
     <!-- Desvios -->
@@ -344,6 +356,16 @@
       </table>
     </section>
 
+    <!-- Treinamentos -->
+    <section id="treinamentos" class="card hidden">
+      <h2>Emitir Certificado</h2>
+      <select id="cert-treinamento"></select>
+      <select id="cert-aluno"></select>
+      <input type="date" id="cert-data" />
+      <input type="text" id="cert-instrutor" placeholder="Instrutor" />
+      <button onclick="emitirCertificado()">Emitir Certificado</button>
+    </section>
+
   </div>
 
   <!-- Área oculta para impressão -->
@@ -357,7 +379,6 @@
 
     let alunos = storage.get("alunos");
     let empresas = storage.get("empresas");
-    let diarias = storage.get("diarias");
     let desvios = storage.get("desvios");
 
     const treinamentos = [
@@ -383,101 +404,137 @@
       });
     }
 
-    function renderAlunos() {
-      const tbody = document.querySelector("#tabela-alunos tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      alunos.forEach(a => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${a.nome}</td><td>${a.cpf}</td><td>${a.email || "-"}</td>`;
-        tbody.appendChild(tr);
-      });
-      populateSelect("cert-aluno", alunos.map(a => a.nome));
-      updateDashboard();
-    }
-
-    function renderEmpresas() {
-      const tbody = document.querySelector("#tabela-empresas tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      empresas.forEach(e => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
-        tbody.appendChild(tr);
-      });
-      populateSelect("desvio-empresa", empresas.map(e => e.razao));
-      updateDashboard();
-    }
-
     function addAluno() {
-      const nome = document.getElementById("aluno-nome").value;
-      const cpf = document.getElementById("aluno-cpf").value;
-      const email = document.getElementById("aluno-email").value;
+      const nome = document.getElementById("aluno-nome").value.trim();
+      const cpf = document.getElementById("aluno-cpf").value.trim();
+      const email = document.getElementById("aluno-email").value.trim();
+      const treinamento = document.getElementById("aluno-treinamento").value;
 
       if (!nome || !cpf) return alert("Preencha Nome e CPF");
-      alunos.push({ nome, cpf, email });
+
+      const alunoExistente = alunos.find(a => a.cpf === cpf);
+
+      if (alunoExistente) {
+        if (treinamento && !alunoExistente.treinamentosRealizados.includes(treinamento)) {
+          alunoExistente.treinamentosRealizados.push(treinamento);
+        }
+        alunos = alunos.map(a => a.cpf === cpf ? alunoExistente : a);
+      } else {
+        alunos.push({
+          nome,
+          cpf,
+          email,
+          treinamentosRealizados: treinamento ? [treinamento] : []
+        });
+      }
+
       storage.set("alunos", alunos);
       renderAlunos();
       clearInputs(["aluno-nome", "aluno-cpf", "aluno-email"]);
+      document.getElementById("aluno-treinamento").value = "";
     }
 
-    function addEmpresa() {
-      const razao = document.getElementById("empresa-razao").value;
-      const cnpj = document.getElementById("empresa-cnpj").value;
-      const endereco = document.getElementById("empresa-endereco").value;
-      const cidadeUf = document.getElementById("empresa-cidade-uf").value;
-      const telefone = document.getElementById("empresa-telefone").value;
-      const email = document.getElementById("empresa-email").value;
+    function renderAlunos() {
+      const tbody = document.getElementById("tabela-alunos");
+      tbody.innerHTML = "";
 
-      if (!razao || !cnpj) return alert("Preencha Razão Social e CNPJ");
-      empresas.push({ razao, cnpj, endereco, cidadeUf, telefone, email });
-      storage.set("empresas", empresas);
-      renderEmpresas();
-      clearInputs(["empresa-razao", "empresa-cnpj", "empresa-endereco", "empresa-cidade-uf", "empresa-telefone", "empresa-email"]);
+      if (alunos.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="5">Nenhum aluno cadastrado ainda.</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      alunos.forEach(aluno => {
+        const tr = document.createElement("tr");
+        const treinamentosRealizados = aluno.treinamentosRealizados?.join(", ") || "-";
+        tr.innerHTML = `
+          <td>${aluno.nome}</td>
+          <td>${aluno.cpf}</td>
+          <td>${aluno.email || "-"}</td>
+          <td>${treinamentosRealizados}</td>
+          <td class="flex gap-2">
+            <button onclick="editarAluno('${aluno.cpf}')" class="bg-yellow-600 px-3 py-1 rounded hover:bg-yellow-700">Editar</button>
+            <button onclick="excluirAluno('${aluno.cpf}')" class="bg-red-600 px-3 py-1 rounded hover:bg-red-700">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    function registrarDesvio() {
-      const empresa = document.getElementById("desvio-empresa").value;
-      const tipo = document.getElementById("desvio-tipo").value;
-      const descricao = document.getElementById("desvio-descricao").value;
-      const data = document.getElementById("desvio-data").value;
-      const situacao = document.getElementById("desvio-situacao").value;
+    function exportToExcel() {
+      if (alunos.length === 0) return alert("Nenhum aluno para exportar.");
+      let csv = "Nome,CPF,Email,Treinamentos\n";
+      alunos.forEach(a => {
+        const treinamentosStr = a.treinamentosRealizados.join(", ");
+        csv += `"${a.nome}","${a.cpf}","${a.email || ""}","${treinamentosStr}"\n`;
+      });
 
-      if (!empresa || !tipo || !descricao) return alert("Preencha todos os campos obrigatórios");
-      desvios.push({ empresa, tipo, descricao, data, situacao });
-      storage.set("desvios", desvios);
-      clearInputs(["desvio-tipo", "desvio-descricao", "desvio-data"]);
-      updateDashboard();
+      const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "alunos.csv";
+      link.click();
     }
 
-    function emitirCertificado() {
-      const aluno = document.getElementById("cert-aluno").value;
-      const treinamento = document.getElementById("cert-treinamento").value;
-      const data = document.getElementById("cert-data").value;
-      const instrutor = document.getElementById("cert-instrutor").value;
+    function imprimirCertificado() {
+      const cpf = document.getElementById("aluno-cpf").value;
+      const aluno = alunos.find(a => a.cpf === cpf);
+      const treinamento = document.getElementById("aluno-treinamento").value || "NR-12 - Segurança em Máquinas";
 
-      if (!aluno || !treinamento || !data || !instrutor) return alert("Preencha todos os campos");
+      if (!aluno) return alert("Selecione um aluno válido.");
+
       const content = `
         <div class="print-section" id="cert-${Date.now()}">
           <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
           <p style="text-align:center;">Certificamos que:</p>
-          <h2 style="text-align:center; margin:2rem 0;" id="cert-nome-aluno">${aluno}</h2>
+          <h2 style="text-align:center; margin: 2rem 0;">${aluno.nome}</h2>
           <p style="text-align:center;">Participou do treinamento:</p>
-          <h3 style="text-align:center; margin:2rem 0;">${treinamento}</h3>
-          <p style="text-align:center;">Ministrado por: ${instrutor}</p>
-          <p style="text-align:center;">Data: ${new Date(data).toLocaleDateString()}</p>
+          <h3 style="text-align:center; margin: 2rem 0;">${treinamento}</h3>
+          <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
+          <p style="text-align:center;">Data: <span id="cert-data-print"></span></p>
           <p style="margin-top:4rem; text-align:right;">__________________________<br>Instrutor</p>
         </div>
       `;
+
       document.getElementById("print-area").innerHTML = content;
       window.print();
+    }
+
+    function editarAluno(cpf) {
+      const aluno = alunos.find(a => a.cpf === cpf);
+      if (!aluno) return;
+
+      document.getElementById("aluno-nome").value = aluno.nome;
+      document.getElementById("aluno-cpf").value = aluno.cpf;
+      document.getElementById("aluno-email").value = aluno.email || "";
+      document.getElementById("aluno-treinamento").value = aluno.treinamentosRealizados[0] || "";
+    }
+
+    function excluirAluno(cpf) {
+      if (confirm("Tem certeza que deseja excluir este aluno?")) {
+        alunos = alunos.filter(a => a.cpf !== cpf);
+        storage.set("alunos", alunos);
+        renderAlunos();
+      }
+    }
+
+    function populateTreinamentosSelect() {
+      const select = document.getElementById("aluno-treinamento");
+      if (!select) return;
+      select.innerHTML = "<option value=''>Selecione</option>";
+      treinamentos.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.nome;
+        opt.textContent = t.nome;
+        select.appendChild(opt);
+      });
     }
 
     function updateDashboard() {
       document.getElementById("count-alunos").innerText = alunos.length;
       document.getElementById("count-empresas").innerText = empresas.length;
       document.getElementById("count-certificados").innerText = 0;
-      document.getElementById("total-faturamento").innerText = diarias.reduce((sum, d) => sum + (d.valorTotal || 0), 0).toFixed(2);
 
       const totalDesvios = desvios.length;
       const abertos = desvios.filter(d => d.situacao === "Aberto").length;
@@ -552,25 +609,68 @@
       });
     }
 
-    function updateCertFields() {
-      const treinamentoSelect = document.getElementById("cert-treinamento");
-      const selected = treinamentos.find(t => t.nome === treinamentoSelect.value);
-      const printArea = document.getElementById("print-area");
+    function addEmpresa() {
+      const razao = document.getElementById("empresa-razao").value;
+      const cnpj = document.getElementById("empresa-cnpj").value;
 
-      if (!selected) return;
+      if (!razao || !cnpj) return alert("Preencha Razão Social e CNPJ");
 
-      printArea.innerHTML = `
-        <div class="print-section" id="cert-template">
+      empresas.push({ razao, cnpj });
+      storage.set("empresas", empresas);
+      renderEmpresas();
+      clearInputs(["empresa-razao", "empresa-cnpj"]);
+    }
+
+    function renderEmpresas() {
+      const tbody = document.querySelector("#tabela-empresas tbody");
+      tbody.innerHTML = "";
+      empresas.forEach(e => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
+        tbody.appendChild(tr);
+      });
+      populateSelect("desvio-empresa", empresas.map(e => e.razao));
+      updateDashboard();
+    }
+
+    function registrarDesvio() {
+      const empresa = document.getElementById("desvio-empresa").value;
+      const tipo = document.getElementById("desvio-tipo").value;
+      const descricao = document.getElementById("desvio-descricao").value;
+      const data = document.getElementById("desvio-data").value;
+      const situacao = document.getElementById("desvio-situacao").value;
+
+      if (!empresa || !tipo || !descricao) return alert("Preencha todos os campos obrigatórios");
+
+      desvios.push({ empresa, tipo, descricao, data, situacao });
+      storage.set("desvios", desvios);
+      clearInputs(["desvio-tipo", "desvio-descricao", "desvio-data"]);
+      updateDashboard();
+    }
+
+    function emitirCertificado() {
+      const aluno = document.getElementById("cert-aluno").value;
+      const treinamento = document.getElementById("cert-treinamento").value;
+      const data = document.getElementById("cert-data").value;
+      const instrutor = document.getElementById("cert-instrutor").value;
+
+      if (!aluno || !treinamento || !data || !instrutor) return alert("Preencha todos os campos");
+
+      const content = `
+        <div class="print-section" id="cert-${Date.now()}">
           <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
           <p style="text-align:center;">Certificamos que:</p>
-          <h2 style="text-align:center; margin:2rem 0;" id="cert-nome-aluno"></h2>
+          <h2 style="text-align:center; margin:2rem 0;">${aluno}</h2>
           <p style="text-align:center;">Participou do treinamento:</p>
-          <h3 style="text-align:center; margin:2rem 0;">${selected.nome}</h3>
-          <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
-          <p style="text-align:center;">Data: <span id="cert-data-print"></span></p>
+          <h3 style="text-align:center; margin:2rem 0;">${treinamento}</h3>
+          <p style="text-align:center;">Ministrado por: ${instrutor}</p>
+          <p style="text-align:center;">Data: ${new Date(data).toLocaleDateString()}</p>
           <p style="margin-top:4rem; text-align:right;">__________________________<br>Instrutor</p>
         </div>
       `;
+
+      document.getElementById("print-area").innerHTML = content;
+      window.print();
     }
 
     function clearInputs(ids) {
@@ -581,128 +681,16 @@
     }
 
     function init() {
-      // Popula selects
+      populateTreinamentosSelect();
       populateSelect("cert-treinamento", treinamentos.map(t => t.nome));
+      populateSelect("cert-aluno", alunos.map(a => a.nome));
       populateSelect("desvio-empresa", empresas.map(e => e.razao));
-
-      // Renderiza dados iniciais
       renderAlunos();
       renderEmpresas();
       updateDashboard();
     }
 
-    function renderAlunos() {
-      const tbody = document.querySelector("#tabela-alunos tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      alunos.forEach(a => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${a.nome}</td><td>${a.cpf}</td><td>${a.email || "-"}</td>`;
-        tbody.appendChild(tr);
-      });
-      populateSelect("cert-aluno", alunos.map(a => a.nome));
-    }
-
-    function renderEmpresas() {
-      const tbody = document.querySelector("#tabela-empresas tbody");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-      empresas.forEach(e => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
-        tbody.appendChild(tr);
-      });
-      populateSelect("desvio-empresa", empresas.map(e => e.razao));
-    }
-
     window.onload = init;
-    // Armazenamento local
-const storage = {
-  get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
-  set(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-};
-
-let alunos = storage.get("alunos");
-let empresas = storage.get("empresas");
-let desvios = storage.get("desvios");
-
-const treinamentos = [
-  { id: 'nr12', nome: "NR-12 - Segurança em Máquinas" },
-  { id: 'nr35', nome: "NR-35 - Trabalho em Altura" }
-];
-
-function showSection(id) {
-  document.querySelectorAll(".card").forEach(s => s.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  if (id === 'dashboard') updateDashboard();
-}
-
-function populateSelect(id, items) {
-  const select = document.getElementById(id);
-  if (!select) return;
-  select.innerHTML = "<option value=''>Selecione</option>";
-  items.forEach(item => {
-    const opt = document.createElement("option");
-    opt.value = typeof item === 'string' ? item : item.nome;
-    opt.textContent = typeof item === 'string' ? item : item.nome;
-    select.appendChild(opt);
-  });
-}
-
-function addAluno() {
-  const nome = document.getElementById("aluno-nome").value;
-  const cpf = document.getElementById("aluno-cpf").value;
-  const email = document.getElementById("aluno-email").value;
-  const treinamento = document.getElementById("aluno-treinamento").value;
-
-  if (!nome || !cpf) return alert("Preencha Nome e CPF");
-
-  // Se aluno já existe, adiciona mais um treinamento
-  const alunoExistente = alunos.find(a => a.cpf === cpf);
-
-  if (alunoExistente) {
-    if (treinamento && !alunoExistente.treinamentosRealizados.includes(treinamento)) {
-      alunoExistente.treinamentosRealizados.push(treinamento);
-    }
-    alunos = alunos.map(a => a.cpf === cpf ? alunoExistente : a);
-  } else {
-    alunos.push({
-      nome,
-      cpf,
-      email,
-      treinamentosRealizados: treinamento ? [treinamento] : []
-    });
-  }
-
-  storage.set("alunos", alunos);
-  renderAlunos();
-  clearInputs(["aluno-nome", "aluno-cpf", "aluno-email"]);
-  document.getElementById("aluno-treinamento").value = "";
-}
-
-function renderAlunos() {
-  const tbody = document.getElementById("tabela-alunos");
-  tbody.innerHTML = "";
-
-  if (alunos.length === 0) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="4">Nenhum aluno cadastrado ainda.</td>`;
-    tbody.appendChild(tr);
-    return;
-  }
-
-  alunos.forEach(aluno => {
-    const tr = document.createElement("tr");
-    const treinamentosRealizados = aluno.treinamentosRealizados?.join(", ") || "-";
-    tr.innerHTML = `
-      <td>${aluno.nome}</td>
-      <td>${aluno.cpf}</td>
-      <td>${aluno.email || "-"}</td>
-      <td>${treinamentosRealizados}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
   </script>
 </body>
 </html>
