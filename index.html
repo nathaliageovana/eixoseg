@@ -1,696 +1,306 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>GestãoSeg - Sistema Único</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eixo Segurança</title>
   <style>
-    /* Estilos completos aqui */
+    :root {
+      --bg-color: #111;
+      --text-color: #fff;
+      --accent-color: orange;
+      --card-bg: #222;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background-color: #1a202c;
-      color: white;
       margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-    }
-
-    .sidebar {
-      width: 250px;
-      background-color: #2d3748;
-      padding: 1rem;
-      border-right: 1px solid #ed8936;
-    }
-
-    .sidebar button {
-      display: block;
-      width: 100%;
-      background: #ed8936;
-      color: white;
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      border: none;
-      border-radius: 0.3rem;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .sidebar button:hover {
-      background: #d69929;
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      background-color: #1e293b;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
     }
 
     header {
-      background-color: #ed8936;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
+      background-color: black;
+      border-bottom: 2px solid var(--accent-color);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    section {
+    header img {
+      height: 40px;
+    }
+
+    nav {
       display: none;
-      padding: 1rem;
     }
 
-    .active {
-      display: block;
+    aside {
+      width: 250px;
+      background-color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem 1rem;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-
-    th, td {
-      border: 1px solid #4a5568;
-      padding: 0.5rem;
-      text-align: left;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.5rem;
+    aside h2 {
+      color: var(--accent-color);
       margin-bottom: 1rem;
-      border: 1px solid #ed8936;
-      border-radius: 0.3rem;
-      background-color: #2d3748;
-      color: white;
     }
 
-    button {
-      background-color: #ed8936;
-      color: white;
-      padding: 0.5rem 1rem;
+    aside button {
+      width: 100%;
+      text-align: left;
+      background: none;
       border: none;
-      border-radius: 0.3rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
+
+    aside button:hover,
+    aside button.active {
+      background-color: var(--accent-color);
+      color: black;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    form input, form select, form textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid #444;
+      background-color: #333;
+      color: white;
+      border-radius: 4px;
+    }
+
+    form button {
+      background-color: var(--accent-color);
+      color: black;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
       cursor: pointer;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    .card {
-      background-color: #2d3748;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 0 10px rgba(230, 80, 50, 0.2);
-      margin-bottom: 1rem;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .indicator {
-      background-color: #2d3748;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      text-align: center;
-    }
-
-    .indicator-title {
-      font-size: 0.85rem;
-      color: #ed8936;
-    }
-
-    .indicator-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    .grafico-container {
-      background-color: #2d3748;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .barra-horizontal {
-      background-color: #4a5568;
-      height: 1rem;
-      border-radius: 0.3rem;
-      overflow: hidden;
-      margin: 0.5rem 0;
-    }
-
-    .barra-abertos {
-      background-color: #f56565;
-    }
-
-    .barra-andamento {
-      background-color: #ecc94b;
-    }
-
-    .barra-resolvidos {
-      background-color: #48bb78;
-    }
-
-    .grafico-label {
+    ul.services li {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
+      align-items: center;
+      margin-bottom: 1rem;
     }
 
-    .print-section {
-      background: white;
-      color: black;
+    ul.services input[type="checkbox"] {
+      margin-right: 1rem;
+    }
+
+    .total {
+      font-size: 1.2rem;
+      color: var(--accent-color);
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
       padding: 2rem;
-      max-width: 800px;
-      margin: 1rem auto;
-      border: 1px solid #ccc;
+      background-color: black;
+      color: gray;
+      font-size: 0.9rem;
     }
 
-    @media print {
-      .no-print {
-        display: none !important;
+    @media (min-width: 768px) {
+      nav {
+        display: block;
       }
-      body * {
-        visibility: hidden;
+
+      .layout {
+        display: flex;
       }
-      .print-section, .print-section * {
-        visibility: visible;
-        position: absolute;
+
+      aside {
+        position: sticky;
         top: 0;
-        left: 0;
+        height: 100vh;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar no-print">
-    <header>GestãoSeg</header>
-    <button onclick="showSection('dashboard')">Dashboard</button>
-    <button onclick="showSection('alunos')">Alunos</button>
-    <button onclick="showSection('empresas')">Empresas</button>
-    <button onclick="showSection('treinamentos')">Treinamentos</button>
-    <button onclick="showSection('desvios')">Desvios</button>
+  <!-- Header -->
+  <header>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <img src="logo.jpg" alt="Logo Eixo Segurança" />
+      <h1>Eixo Segurança</h1>
+    </div>
+  </header>
+
+  <!-- Layout -->
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside>
+      <h2>Menu</h2>
+      <button class="active" onclick="showTab('empresa')">🏢 Cadastro da Empresa</button>
+      <button onclick="showTab('consultoria')">📅 Diárias de Consultoria</button>
+      <button onclick="showTab('notafiscal')">💰 Emissão de Nota Fiscal</button>
+      <button onclick="showTab('sobre')">🧭 Sobre Nós</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="container">
+      <div id="empresa" class="tab-content">
+        <h2>Cadastro da Empresa</h2>
+        <form onsubmit="saveEmpresa(event)">
+          <input type="text" name="razao" placeholder="Razão Social" required />
+          <input type="text" name="fantasia" placeholder="Nome Fantasia" required />
+          <input type="text" name="cnpj" placeholder="CNPJ" required />
+          <input type="text" name="endereco" placeholder="Endereço" required />
+          <input type="text" name="bairro" placeholder="Bairro" required />
+          <input type="text" name="cidade_estado" placeholder="Cidade / Estado" required />
+          <input type="tel" name="telefone" placeholder="Telefone" required />
+          <input type="email" name="email" placeholder="E-mail" required />
+          <input type="text" name="responsavel" placeholder="Responsável Técnico" required />
+          <button type="submit">Salvar Dados</button>
+        </form>
+      </div>
+
+      <div id="consultoria" class="tab-content" style="display:none;">
+        <h2>Diárias de Consultoria</h2>
+        <ul class="services" id="servicesList"></ul>
+      </div>
+
+      <div id="notafiscal" class="tab-content" style="display:none;">
+        <h2>Emissão de Nota Fiscal</h2>
+        <p><strong>Empresa:</strong> <span id="notaEmpresa"></span></p>
+        <ul id="notaItens"></ul>
+        <div class="total" id="notaTotal"></div>
+        <button onclick="emitirNota()">Emitir Nota Fiscal</button>
+      </div>
+
+      <div id="sobre" class="tab-content" style="display:none;">
+        <h2>Sobre Nós</h2>
+        <p>
+          A <strong>Eixo Segurança</strong> é uma empresa especializada em soluções técnicas e estratégicas nas áreas de <strong>Segurança do Trabalho</strong>, <strong>Prevenção de Incêndios</strong> e <strong>Engenharia de Segurança</strong>. Atuamos com foco em obras civis, indústrias, treinamentos e gestão de riscos.
+        </p>
+        <h3>Principais Serviços:</h3>
+        <ul>
+          <li>🧯 Prevenção e Combate a Incêndios</li>
+          <li>📚 Treinamentos e Capacitações</li>
+          <li>📑 Documentações e Laudos</li>
+          <li>🛠️ Acompanhamento Técnico</li>
+        </ul>
+        <h3>Contato:</h3>
+        <p>(62) 99124-7121 | eixo.seguranca@outlook.com | Anápolis-GO</p>
+      </div>
+    </main>
   </div>
 
-  <!-- Main Content -->
-  <div class="main-content">
+  <!-- Footer -->
+  <footer>
+    © 2025 Eixo Segurança - Todos os direitos reservados
+  </footer>
 
-    <!-- Dashboard -->
-    <section id="dashboard" class="active card">
-      <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
-
-      <!-- Indicadores Rápidos -->
-      <div class="dashboard-grid">
-        <div class="indicator">
-          <div class="indicator-title">Total de Alunos</div>
-          <div class="indicator-value" id="count-alunos">0</div>
-        </div>
-        <div class="indicator">
-          <div class="indicator-title">Empresas Cadastradas</div>
-          <div class="indicator-value" id="count-empresas">0</div>
-        </div>
-        <div class="indicator">
-          <div class="indicator-title">Certificados Emitidos</div>
-          <div class="indicator-value" id="count-certificados">0</div>
-        </div>
-        <div class="indicator">
-          <div class="indicator-title">Faturamento Total</div>
-          <div class="indicator-value">R$<span id="total-faturamento">0.00</span></div>
-        </div>
-      </div>
-
-      <!-- Gráfico: Status dos Desvios -->
-      <div class="grafico-container">
-        <h3 class="font-semibold mb-2">Status dos Desvios</h3>
-        <div class="grafico-label">
-          <span>Abertos</span>
-          <span id="total-abertos">0</span>
-        </div>
-        <div class="barra-horizontal">
-          <div id="barra-abertos" class="barra-abertos h-full" style="width: 0%"></div>
-        </div>
-
-        <div class="grafico-label">
-          <span>Em Andamento</span>
-          <span id="total-andamento">0</span>
-        </div>
-        <div class="barra-horizontal">
-          <div id="barra-andamento" class="barra-andamento h-full" style="width: 0%"></div>
-        </div>
-
-        <div class="grafico-label">
-          <span>Resolvidos</span>
-          <span id="total-resolvidos">0</span>
-        </div>
-        <div class="barra-horizontal">
-          <div id="barra-resolvidos" class="barra-resolvidos h-full" style="width: 0%"></div>
-        </div>
-      </div>
-
-      <!-- Gráfico: Desvios por Empresa -->
-      <div class="grafico-container">
-        <h3 class="font-semibold mb-2">Desvios por Empresa</h3>
-        <div id="grafico-desvios-por-empresa"></div>
-      </div>
-
-      <!-- Gráfico: Desvios por Tipo -->
-      <div class="grafico-container">
-        <h3 class="font-semibold mb-2">Desvios por Classificação</h3>
-        <div id="grafico-desvios-por-tipo"></div>
-      </div>
-
-      <button onclick="updateDashboard()" class="no-print mt-4 bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">
-        Atualizar Gráficos
-      </button>
-    </section>
-
-    <!-- Alunos -->
-    <section id="alunos" class="card hidden">
-      <h2>Cadastro de Alunos</h2>
-
-      <!-- Formulário -->
-      <div class="grid gap-4 mb-4">
-        <input type="text" id="aluno-nome" placeholder="Nome do Aluno" />
-        <input type="text" id="aluno-cpf" placeholder="CPF" />
-        <input type="email" id="aluno-email" placeholder="Email" />
-        <select id="aluno-treinamento">
-          <option value="">Selecione um Treinamento</option>
-        </select>
-        <button onclick="addAluno()">Cadastrar ou Atualizar</button>
-      </div>
-
-      <!-- Lista de alunos -->
-      <table class="w-full mt-4 border-collapse">
-        <thead>
-          <tr class="bg-gray-700">
-            <th>Nome</th>
-            <th>CPF</th>
-            <th>Email</th>
-            <th>Treinamentos Realizados</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tabela-alunos">
-          <!-- Alunos aparecerão aqui -->
-        </tbody>
-      </table>
-
-      <!-- Botões extras -->
-      <div class="mt-6 flex space-x-4">
-        <button onclick="exportToExcel()" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700 transition">
-          Exportar para Excel
-        </button>
-        <button onclick="imprimirCertificado()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 transition">
-          Imprimir Certificado
-        </button>
-      </div>
-    </section>
-
-    <!-- Empresas -->
-    <section id="empresas" class="card hidden">
-      <h2>Cadastro de Empresas</h2>
-      <input type="text" id="empresa-razao" placeholder="Razão Social" />
-      <input type="text" id="empresa-cnpj" placeholder="CNPJ" />
-      <input type="text" id="empresa-endereco" placeholder="Endereço" />
-      <input type="text" id="empresa-cidade-uf" placeholder="Cidade/UF" />
-      <input type="text" id="empresa-telefone" placeholder="Telefone" />
-      <input type="email" id="empresa-email" placeholder="Email" />
-      <button onclick="addEmpresa()">Cadastrar</button>
-      <table id="tabela-empresas" class="mt-4 w-full">
-        <thead>
-          <tr>
-            <th>Razão Social</th>
-            <th>CNPJ</th>
-            <th>Cidade/UF</th>
-            <th>Telefone</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <!-- Desvios -->
-    <section id="desvios" class="card hidden">
-      <h2>Cadastrar Desvio</h2>
-      <select id="desvio-empresa"></select>
-      <input type="text" id="desvio-tipo" placeholder="Tipo do Desvio" />
-      <textarea id="desvio-descricao" rows="3" placeholder="Descrição do Desvio"></textarea>
-      <input type="date" id="desvio-data" value="" />
-      <select id="desvio-situacao">
-        <option value="Aberto">Aberto</option>
-        <option value="Em andamento">Em Andamento</option>
-        <option value="Resolvido">Resolvido</option>
-      </select>
-      <button onclick="registrarDesvio()">Registrar</button>
-      <table id="tabela-desvios" class="mt-4">
-        <thead><tr><th>Empresa</th><th>Tipo</th><th>Data</th><th>Situação</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <!-- Treinamentos -->
-    <section id="treinamentos" class="card hidden">
-      <h2>Emitir Certificado</h2>
-      <select id="cert-treinamento"></select>
-      <select id="cert-aluno"></select>
-      <input type="date" id="cert-data" />
-      <input type="text" id="cert-instrutor" placeholder="Instrutor" />
-      <button onclick="emitirCertificado()">Emitir Certificado</button>
-    </section>
-
-  </div>
-
-  <!-- Área oculta para impressão -->
-  <div id="print-area" class="hidden"></div>
-
+  <!-- Script -->
   <script>
-    const storage = {
-      get(key) { return JSON.parse(localStorage.getItem(key)) || []; },
-      set(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-    };
-
-    let alunos = storage.get("alunos");
-    let empresas = storage.get("empresas");
-    let desvios = storage.get("desvios");
-
-    const treinamentos = [
-      { id: 'nr12', nome: "NR-12 - Segurança em Máquinas", duracao: "8 horas", conteudo: ["Introdução à segurança em máquinas", "Riscos mecânicos e elétricos", "Equipamentos de proteção coletiva e individual", "Procedimentos de emergência"] },
-      { id: 'nr35', nome: "NR-35 - Trabalho em Altura", duracao: "4 horas", conteudo: ["Definições e riscos", "Equipamentos de proteção contra quedas", "Planejamento e organização do trabalho", "Resgate e primeiros socorros"] }
+    const servicesList = [
+      { id: 1, name: "Treinamento NR-35", description: "Segurança para trabalho em altura", price: 1200 },
+      { id: 2, name: "Treinamento NR-10 (Reciclagem)", description: "Segurança em instalações elétricas", price: 1000 },
+      { id: 3, name: "Primeiros Socorros", description: "Teórico+prático, simulação e apostila", price: 1100 },
+      { id: 4, name: "Elaboração de APR", description: "Análise Preliminar de Risco por atividade", price: 430 },
+      { id: 5, name: "PT (Permissão de Trabalho)", description: "Documento de autorização de atividades de risco", price: 430 },
+      { id: 6, name: "Campanha de Segurança (SIPAT, DDS etc.)", description: "Planejamento, execução e registro fotográfico", price: 430 },
+      { id: 7, name: "Consultoria Técnica em Obra", description: "Visita com relatório técnico de segurança", price: 600 },
+      { id: 8, name: "Plano de Emergência e Rota de Fuga", description: "Avaliação, implantação e sinalização recomendada", price: 600 },
+      { id: 9, name: "Dimensionamento de EPI/Extintores", description: "Cálculo conforme normas regulamentadoras", price: 430 },
+      { id: 10, name: "Diária TST", description: "Acompanhamento de atividades em campo", price: 430 }
     ];
 
-    function showSection(id) {
-      document.querySelectorAll(".card").forEach(s => s.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
-      if (id === 'dashboard') updateDashboard();
+    let selectedServices = JSON.parse(localStorage.getItem("selectedServices")) || [];
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(div => div.style.display = 'none');
+      document.getElementById(tabId).style.display = 'block';
+
+      document.querySelectorAll('aside button').forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      if (tabId === 'notafiscal') loadNota();
     }
 
-    function populateSelect(id, items) {
-      const select = document.getElementById(id);
-      if (!select) return;
-      select.innerHTML = "<option value=''>Selecione</option>";
-      items.forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = typeof item === 'string' ? item : item.nome;
-        opt.textContent = typeof item === 'string' ? item : item.nome;
-        select.appendChild(opt);
+    function saveEmpresa(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      localStorage.setItem("empresa", JSON.stringify(data));
+      alert("Dados salvos!");
+    }
+
+    function renderServices() {
+      const container = document.getElementById("servicesList");
+      container.innerHTML = "";
+      servicesList.forEach(s => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <input type="checkbox" ${selectedServices.some(x => x.id === s.id) ? "checked" : ""} onchange="toggleService(${JSON.stringify(s)})">
+          <div>
+            <strong>${s.name}</strong><br/>
+            <small>${s.description}</small><br/>
+            <span style="color: var(--accent-color);">${s.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+          </div>
+        `;
+        container.appendChild(li);
       });
     }
 
-    function addAluno() {
-      const nome = document.getElementById("aluno-nome").value.trim();
-      const cpf = document.getElementById("aluno-cpf").value.trim();
-      const email = document.getElementById("aluno-email").value.trim();
-      const treinamento = document.getElementById("aluno-treinamento").value;
-
-      if (!nome || !cpf) return alert("Preencha Nome e CPF");
-
-      const alunoExistente = alunos.find(a => a.cpf === cpf);
-
-      if (alunoExistente) {
-        if (treinamento && !alunoExistente.treinamentosRealizados.includes(treinamento)) {
-          alunoExistente.treinamentosRealizados.push(treinamento);
-        }
-        alunos = alunos.map(a => a.cpf === cpf ? alunoExistente : a);
+    function toggleService(service) {
+      const index = selectedServices.findIndex(s => s.id == service.id);
+      if (index > -1) {
+        selectedServices.splice(index, 1);
       } else {
-        alunos.push({
-          nome,
-          cpf,
-          email,
-          treinamentosRealizados: treinamento ? [treinamento] : []
-        });
+        selectedServices.push(service);
       }
-
-      storage.set("alunos", alunos);
-      renderAlunos();
-      clearInputs(["aluno-nome", "aluno-cpf", "aluno-email"]);
-      document.getElementById("aluno-treinamento").value = "";
+      localStorage.setItem("selectedServices", JSON.stringify(selectedServices));
     }
 
-    function renderAlunos() {
-      const tbody = document.getElementById("tabela-alunos");
-      tbody.innerHTML = "";
+    function loadNota() {
+      const empresa = JSON.parse(localStorage.getItem("empresa")) || {};
+      const services = JSON.parse(localStorage.getItem("selectedServices")) || [];
+      const total = services.reduce((sum, s) => sum + parseFloat(s.price), 0);
 
-      if (alunos.length === 0) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="5">Nenhum aluno cadastrado ainda.</td>`;
-        tbody.appendChild(tr);
-        return;
-      }
-
-      alunos.forEach(aluno => {
-        const tr = document.createElement("tr");
-        const treinamentosRealizados = aluno.treinamentosRealizados?.join(", ") || "-";
-        tr.innerHTML = `
-          <td>${aluno.nome}</td>
-          <td>${aluno.cpf}</td>
-          <td>${aluno.email || "-"}</td>
-          <td>${treinamentosRealizados}</td>
-          <td class="flex gap-2">
-            <button onclick="editarAluno('${aluno.cpf}')" class="bg-yellow-600 px-3 py-1 rounded hover:bg-yellow-700">Editar</button>
-            <button onclick="excluirAluno('${aluno.cpf}')" class="bg-red-600 px-3 py-1 rounded hover:bg-red-700">Excluir</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function exportToExcel() {
-      if (alunos.length === 0) return alert("Nenhum aluno para exportar.");
-      let csv = "Nome,CPF,Email,Treinamentos\n";
-      alunos.forEach(a => {
-        const treinamentosStr = a.treinamentosRealizados.join(", ");
-        csv += `"${a.nome}","${a.cpf}","${a.email || ""}","${treinamentosStr}"\n`;
+      document.getElementById("notaEmpresa").innerText = empresa.fantasia || "Nenhuma empresa cadastrada";
+      const items = document.getElementById("notaItens");
+      items.innerHTML = "";
+      services.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = `${s.name} - ${s.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
+        items.appendChild(li);
       });
 
-      const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "alunos.csv";
-      link.click();
+      document.getElementById("notaTotal").textContent = `Total: ${total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
     }
 
-    function imprimirCertificado() {
-      const cpf = document.getElementById("aluno-cpf").value;
-      const aluno = alunos.find(a => a.cpf === cpf);
-      const treinamento = document.getElementById("aluno-treinamento").value || "NR-12 - Segurança em Máquinas";
-
-      if (!aluno) return alert("Selecione um aluno válido.");
-
-      const content = `
-        <div class="print-section" id="cert-${Date.now()}">
-          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
-          <p style="text-align:center;">Certificamos que:</p>
-          <h2 style="text-align:center; margin: 2rem 0;">${aluno.nome}</h2>
-          <p style="text-align:center;">Participou do treinamento:</p>
-          <h3 style="text-align:center; margin: 2rem 0;">${treinamento}</h3>
-          <p style="text-align:center;">Ministrado por: <span id="cert-instrutor-print"></span></p>
-          <p style="text-align:center;">Data: <span id="cert-data-print"></span></p>
-          <p style="margin-top:4rem; text-align:right;">__________________________<br>Instrutor</p>
-        </div>
-      `;
-
-      document.getElementById("print-area").innerHTML = content;
-      window.print();
+    function emitirNota() {
+      alert("Nota fiscal emitida com sucesso!");
     }
 
-    function editarAluno(cpf) {
-      const aluno = alunos.find(a => a.cpf === cpf);
-      if (!aluno) return;
-
-      document.getElementById("aluno-nome").value = aluno.nome;
-      document.getElementById("aluno-cpf").value = aluno.cpf;
-      document.getElementById("aluno-email").value = aluno.email || "";
-      document.getElementById("aluno-treinamento").value = aluno.treinamentosRealizados[0] || "";
-    }
-
-    function excluirAluno(cpf) {
-      if (confirm("Tem certeza que deseja excluir este aluno?")) {
-        alunos = alunos.filter(a => a.cpf !== cpf);
-        storage.set("alunos", alunos);
-        renderAlunos();
-      }
-    }
-
-    function populateTreinamentosSelect() {
-      const select = document.getElementById("aluno-treinamento");
-      if (!select) return;
-      select.innerHTML = "<option value=''>Selecione</option>";
-      treinamentos.forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t.nome;
-        opt.textContent = t.nome;
-        select.appendChild(opt);
-      });
-    }
-
-    function updateDashboard() {
-      document.getElementById("count-alunos").innerText = alunos.length;
-      document.getElementById("count-empresas").innerText = empresas.length;
-      document.getElementById("count-certificados").innerText = 0;
-
-      const totalDesvios = desvios.length;
-      const abertos = desvios.filter(d => d.situacao === "Aberto").length;
-      const andamento = desvios.filter(d => d.situacao === "Em andamento").length;
-      const resolvidos = desvios.filter(d => d.situacao === "Resolvido").length;
-
-      document.getElementById("total-abertos").innerText = abertos;
-      document.getElementById("total-andamento").innerText = andamento;
-      document.getElementById("total-resolvidos").innerText = resolvidos;
-
-      document.getElementById("barra-abertos").style.width = ((abertos / Math.max(totalDesvios, 1)) * 100) + "%";
-      document.getElementById("barra-andamento").style.width = ((andamento / Math.max(totalDesvios, 1)) * 100) + "%";
-      document.getElementById("barra-resolvidos").style.width = ((resolvidos / Math.max(totalDesvios, 1)) * 100) + "%";
-
-      generateGraficoPorEmpresa();
-      generateGraficoPorTipo();
-    }
-
-    function generateGraficoPorEmpresa() {
-      const container = document.getElementById("grafico-desvios-por-empresa");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const contagem = {};
-      desvios.forEach(d => {
-        contagem[d.empresa] = (contagem[d.empresa] || 0) + 1;
-      });
-
-      const max = Math.max(...Object.values(contagem)) || 1;
-
-      Object.entries(contagem).forEach(([empresa, qtd]) => {
-        const percent = (qtd / max) * 100;
-        container.innerHTML += `
-          <div class="mb-2">
-            <div class="flex justify-between mb-1">
-              <span>${empresa}</span>
-              <span>${qtd}</span>
-            </div>
-            <div class="w-full bg-gray-700 h-3 rounded overflow-hidden">
-              <div class="bg-orange-500 h-3" style="width:${percent}%"></div>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function generateGraficoPorTipo() {
-      const container = document.getElementById("grafico-desvios-por-tipo");
-      if (!container) return;
-      container.innerHTML = "";
-
-      const contagem = {};
-      desvios.forEach(d => {
-        contagem[d.tipo] = (contagem[d.tipo] || 0) + 1;
-      });
-
-      const max = Math.max(...Object.values(contagem)) || 1;
-
-      Object.entries(contagem).forEach(([tipo, qtd]) => {
-        const percent = (qtd / max) * 100;
-        container.innerHTML += `
-          <div class="mb-2">
-            <div class="flex justify-between mb-1">
-              <span>${tipo}</span>
-              <span>${qtd}</span>
-            </div>
-            <div class="w-full bg-gray-700 h-3 rounded overflow-hidden">
-              <div class="bg-purple-500 h-3" style="width:${percent}%"></div>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function addEmpresa() {
-      const razao = document.getElementById("empresa-razao").value;
-      const cnpj = document.getElementById("empresa-cnpj").value;
-
-      if (!razao || !cnpj) return alert("Preencha Razão Social e CNPJ");
-
-      empresas.push({ razao, cnpj });
-      storage.set("empresas", empresas);
-      renderEmpresas();
-      clearInputs(["empresa-razao", "empresa-cnpj"]);
-    }
-
-    function renderEmpresas() {
-      const tbody = document.querySelector("#tabela-empresas tbody");
-      tbody.innerHTML = "";
-      empresas.forEach(e => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${e.razao}</td><td>${e.cnpj}</td><td>${e.cidadeUf}</td><td>${e.telefone}</td>`;
-        tbody.appendChild(tr);
-      });
-      populateSelect("desvio-empresa", empresas.map(e => e.razao));
-      updateDashboard();
-    }
-
-    function registrarDesvio() {
-      const empresa = document.getElementById("desvio-empresa").value;
-      const tipo = document.getElementById("desvio-tipo").value;
-      const descricao = document.getElementById("desvio-descricao").value;
-      const data = document.getElementById("desvio-data").value;
-      const situacao = document.getElementById("desvio-situacao").value;
-
-      if (!empresa || !tipo || !descricao) return alert("Preencha todos os campos obrigatórios");
-
-      desvios.push({ empresa, tipo, descricao, data, situacao });
-      storage.set("desvios", desvios);
-      clearInputs(["desvio-tipo", "desvio-descricao", "desvio-data"]);
-      updateDashboard();
-    }
-
-    function emitirCertificado() {
-      const aluno = document.getElementById("cert-aluno").value;
-      const treinamento = document.getElementById("cert-treinamento").value;
-      const data = document.getElementById("cert-data").value;
-      const instrutor = document.getElementById("cert-instrutor").value;
-
-      if (!aluno || !treinamento || !data || !instrutor) return alert("Preencha todos os campos");
-
-      const content = `
-        <div class="print-section" id="cert-${Date.now()}">
-          <h1 style="color:#ed8936; text-align:center;">CERTIFICADO DE PARTICIPAÇÃO</h1>
-          <p style="text-align:center;">Certificamos que:</p>
-          <h2 style="text-align:center; margin:2rem 0;">${aluno}</h2>
-          <p style="text-align:center;">Participou do treinamento:</p>
-          <h3 style="text-align:center; margin:2rem 0;">${treinamento}</h3>
-          <p style="text-align:center;">Ministrado por: ${instrutor}</p>
-          <p style="text-align:center;">Data: ${new Date(data).toLocaleDateString()}</p>
-          <p style="margin-top:4rem; text-align:right;">__________________________<br>Instrutor</p>
-        </div>
-      `;
-
-      document.getElementById("print-area").innerHTML = content;
-      window.print();
-    }
-
-    function clearInputs(ids) {
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-      });
-    }
-
-    function init() {
-      populateTreinamentosSelect();
-      populateSelect("cert-treinamento", treinamentos.map(t => t.nome));
-      populateSelect("cert-aluno", alunos.map(a => a.nome));
-      populateSelect("desvio-empresa", empresas.map(e => e.razao));
-      renderAlunos();
-      renderEmpresas();
-      updateDashboard();
-    }
-
-    window.onload = init;
+    // Init
+    document.addEventListener("DOMContentLoaded", () => {
+      renderServices();
+      loadNota();
+    });
   </script>
 </body>
 </html>
